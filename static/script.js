@@ -5,8 +5,27 @@ function initPopOvers(){
     })
 }
 
+function addCarroTable(carro){
+    let item = document.createElement('tr');
+    let id = carro.id;              
+    item.innerHTML = 
+        `<th>${id} <i class="fa-solid fa-pen-to-square btn_upload" id="upcarro${id}" data-bs-toggle="modal" data-bs-target="#attModal"></i></th>
+        <td>${carro.modelo} / ${carro.marca} / ${carro.ano} 
+        <a tabindex="0" class="btn" role="button" data-bs-toggle="popover" data-bs-trigger="focus" title="Observações" data-bs-content="${carro.observacoes}"><i class="fa-solid fa-circle-info"></i></a></td>
+        <td>R$${carro.vDiaria}</td>
+        <td>${carro.status}<i class="fa-solid fa-trash btn_delete" id="updelete${id}"></i></td>`;
+    tBody.appendChild(item);
+    
+    let btnUpdate = document.getElementById(`upcarro${id}`);
+    btnUpdate.addEventListener('click', atalhoUpdateCarro.bind(arguments, carro));
+    let btnDelete = document.getElementById(`updelete${id}`);
+    btnDelete.addEventListener('click', () => {
+        deleteCarro(id);
+    });
+}
+
+let tBody = document.querySelector('.table__tbody');
 function loadCarros(){
-    let tBody = document.querySelector('.table__tbody');
     tBody.innerHTML = "";
     fetch('http://127.0.0.1:5000/carros', {
         method: "GET"
@@ -14,23 +33,9 @@ function loadCarros(){
         .then((response) => response.json())
         .then((data) => {
             data.carros.forEach(carro => {
-                let item = document.createElement('tr');
-                let id = carro.id;
-                item.innerHTML = 
-                    `<th>${id} <i class="fa-solid fa-pen-to-square btn_upload" id="upcarro${id}"></i></th>
-                    <td>${carro.modelo} / ${carro.marca} / ${carro.ano} 
-                    <a tabindex="0" class="btn" role="button" data-bs-toggle="popover" data-bs-trigger="focus" title="Observações" data-bs-content="${carro.observacoes}"><i class="fa-solid fa-circle-info"></i></a></td>
-                    <td>R$${carro.vDiaria}</td>
-                    <td>${carro.status}<i class="fa-solid fa-trash btn_delete" id="updelete${id}"></i></td>`;
-                tBody.appendChild(item);
-                let btnUpdate = document.getElementById(`upcarro${id}`);
-                btnUpdate.addEventListener('click', atalhoUpdateCarro.bind(arguments, carro));
-                let btnDelete = document.getElementById(`updelete${id}`);
-                btnDelete.addEventListener('click', () => {
-                    deleteCarro(id);
-                });
-                initPopOvers();
+                addCarroTable(carro);
             });
+            initPopOvers();
             console.log(data);
         });
 }
@@ -44,13 +49,7 @@ function loadCarro(){
     })
         .then((response) => response.json())
         .then((data) => {
-            let item = document.createElement('tr');
-            item.innerHTML = 
-                `<th>${data.carro.id} <i class="fa-solid fa-pen-to-square btn_upload" id="upcarro${data.carro.id}"></i></th>
-                <td>${data.carro.modelo} / ${data.carro.marca} / ${data.carro.ano} <a tabindex="0" class="btn" role="button" data-bs-toggle="popover" data-bs-trigger="focus" title="Observações" data-bs-content="${carro.observacoes}"><i class="fa-solid fa-circle-info"></i></a></td>
-                <td>R$${data.carro.vDiaria}</td>
-                <td>${data.carro.status}<i class="fa-solid fa-trash btn_delete" id="updelete${data.carro.id}"></i></td>`;
-            tBody.appendChild(item);
+            addCarroTable(data.carro);
             initPopOvers();
         });
 }
@@ -101,18 +100,13 @@ function postCarro(){
 }
 function updateCarro(){
     let inputId = document.getElementById('input_put_id');
-    let inputModelo = document.getElementById('input_put_modelo');
-    let inputMarca = document.getElementById('input_put_marca');
-    let inputAno = document.getElementById('input_put_ano');
-    let inputObservacoes = document.getElementById('input_put_observacoes');
-    let inputVDiaria = document.getElementById('input_put_vDiaria');
     let inputData = {
-        "modelo": inputModelo.value,
-        "marca": inputMarca.value,
-        "ano": inputAno.value,
-        "observacoes": inputObservacoes.value,
-        "vDiaria": inputVDiaria.value,
-        "status": 'alugado'
+        "modelo": document.getElementById('input_put_modelo').value,
+        "marca": document.getElementById('input_put_marca').value,
+        "ano": document.getElementById('input_put_ano').value,
+        "observacoes": document.getElementById('input_put_observacoes').value,
+        "vDiaria": document.getElementById('input_put_vDiaria').value,
+        "status": document.getElementById('input_put_status').value
     };
     fetch(`http://127.0.0.1:5000/carros/${inputId.value}`, {
         method: "PUT",
@@ -123,6 +117,7 @@ function updateCarro(){
     })
         .then((response) => response.json())
         .then((data) => {
+            console.log(data);
             loadCarros();
     });
 }
@@ -134,4 +129,5 @@ function atalhoUpdateCarro(data){
     document.getElementById('input_put_ano').value = data.ano;
     document.getElementById('input_put_observacoes').value = data.observacoes;
     document.getElementById('input_put_vDiaria').value = data.vDiaria;
+    document.getElementById('input_put_status').value = data.status;
 }

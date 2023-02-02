@@ -17,7 +17,7 @@ carros = [
         'ano': 2022,
         'observacoes': 'Bla bleee, bla',
         'vDiaria': 499.00, 
-        'status': 'manutenção'}]
+        'status': 'manutencao'}]
 
 @app.route('/')
 def index():
