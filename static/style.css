@@ -1,5 +1,5 @@
 body{
-    background-image: url('/static/images/pexels-errin-casano-2356071.jpg');
+    background: url('/static/images/pexels-errin-casano-2356071.jpg') no-repeat center fixed;
     background-size: cover;
     background-blend-mode:soft-light;
 }

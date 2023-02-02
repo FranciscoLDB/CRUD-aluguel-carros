@@ -1,5 +1,28 @@
 from flask import Flask, jsonify, request, render_template
+from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///carros.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+
+class Carro(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    modelo = db.Column(db.String(20), nullable=False)
+    marca = db.Column(db.String(20), nullable=False)
+    ano = db.Column(db.String(10), nullable=False)
+    observacoes = db.Column(db.String(100), nullable=True)
+    vDiaria = db.Column(db.String(20), nullable=False)
+    status = db.Column(db.String(20), nullable=False)
+
+    def as_dict(self):
+       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+    def dict(self):
+       return {"id":self.id, "name":self.name, "phone":self.phone}
+
+with app.app_context():
+    db.create_all()
 
 carros = [
     {
@@ -26,9 +49,8 @@ def index():
 # GET request to retrieve all carros
 @app.route('/carros', methods=['GET'])
 def get_carros(): 
-    if not carros:
-        return jsonify({'message':'No carros founded in server'}), 404
-    return jsonify({'carros': carros}), 200
+    carros = Carro.query.all()
+    return jsonify({'carros':[carro.as_dict() for carro in carros]}), 200
 
 # GET request to retrieve one carros
 @app.route('/carros/<int:id>', methods=['get'])
@@ -46,19 +68,10 @@ def add_carro():
     data = request.get_json()
     if not data or not all(key in data for key in ('modelo', 'marca', 'ano', 'observacoes', 'vDiaria')): #polir depois
         return jsonify({'message':'bad request'}), 400
-    id = 1
-    if len(carros) > 0:
-        id = carros[-1]['id']+1
-    c = {
-        'id':id,
-        'modelo':data['modelo'],
-        'marca':data['marca'],
-        'ano':data['ano'],
-        'observacoes':data['observacoes'],
-        'vDiaria':data['vDiaria'],
-        'status': 'livre'}
-    carros.append(c) 
-    return jsonify({'carro': c}), 201
+    carro = Carro(modelo=data['modelo'], marca=data['marca'], ano=data['ano'], observacoes=data['observacoes'], vDiaria=data['vDiaria'], status='livre')
+    db.session.add(carro)
+    db.session.commit()
+    return jsonify({'carro': carro.as_dict()}), 201
 
 # PUT request to update a carro
 @app.route('/carros/<int:id>', methods=['PUT'])
@@ -68,26 +81,26 @@ def update_carro(id):
     data = request.get_json()
     if not data or not all(key in data for key in ('modelo', 'marca', 'ano', 'observacoes', 'vDiaria', 'status')):
         return jsonify({'message':'bad request'}), 400
-    for i,carro in enumerate(carros):
-        if carro['id'] == id:
-            carros[i] = {'id':id,
-                        'modelo':data['modelo'],
-                        'marca':data['marca'],
-                        'ano':data['ano'],
-                        'observacoes':data['observacoes'],
-                        'vDiaria':data['vDiaria'],
-                        'status':data['status']}
-
-            return jsonify({'carro': carros[i]}),200
-    return jsonify({'message':'carro not found'}), 404
+    carro = Carro.query.get_or_404(id)
+    carro.modelo = data['modelo']
+    carro.marca = data['marca']
+    carro.ano = data['ano']
+    carro.observacoes = data['observacoes']
+    carro.vDiaria = data['vDiaria']
+    carro.status = data['status']
+    db.session.commit()
+    return jsonify({'carro': carro.as_dict()}), 200
 
 # DELETE request to delete a carro
 @app.route('/carros/<int:id>', methods=['DELETE'])
 def delete_carro(id):
-    for i,carro in enumerate(carros):
-        if carro['id'] == id:
-            del carros[i]   
-            return jsonify({'message': 'carro deleted'}),200
-    return jsonify({'message':'carro not found'}), 404
+    try:
+        carro = Carro.query.get_or_404(id)
+        db.session.delete(carro)
+        db.session.commit()
+        return jsonify({'message': 'Carro has been deleted.'}), 200
+    except:
+        return jsonify({'message':'carro not found'}), 404
 
-app.run(debug=True)
+if __name__ == '__main__':
+    app.run(debug=True)
