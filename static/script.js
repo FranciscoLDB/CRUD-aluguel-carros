@@ -1,69 +1,84 @@
-function loadContacts(){
+function loadCarros(){
     let tBody = document.querySelector('.table__tbody');
     tBody.innerHTML = "";
-    fetch('http://127.0.0.1:5000/contacts', {
+    fetch('http://127.0.0.1:5000/carros', {
         method: "GET"
     })
         .then((response) => response.json())
         .then((data) => {
-            data.contacts.forEach(contact => {
+            data.carros.forEach(carro => {
                 let item = document.createElement('tr');
-                let id = contact.id;
+                let id = carro.id;
                 item.innerHTML = 
                     `<th>${id}</th>
-                    <td><i class="fa-solid fa-pen-to-square btn_upload" id="upcontact${id}"></i> ${contact.name}</td>
-                    <td>${contact.phone}<i class="fa-solid fa-trash btn_delete" id="updelete${id}"></i></td>`;
+                    <td><i class="fa-solid fa-pen-to-square btn_upload" id="upcarro${id}"></i> ${carro.modelo}</td>
+                    <td>${carro.marca}</td>
+                    <td>${carro.ano}</td>
+                    <td>${carro.observacoes}</td>
+                    <td>${carro.vDiaria}</td>
+                    <td>${carro.status}<i class="fa-solid fa-trash btn_delete" id="updelete${id}"></i></td>`;
                 tBody.appendChild(item);
-                let btnUpdate = document.getElementById(`upcontact${id}`);
-                btnUpdate.addEventListener('click', atalhoUptateContact.bind(arguments, contact));
+                let btnUpdate = document.getElementById(`upcarro${id}`);
+                btnUpdate.addEventListener('click', atalhoUpdateCarro.bind(arguments, carro));
                 let btnDelete = document.getElementById(`updelete${id}`);
                 btnDelete.addEventListener('click', () => {
-                    deleteContact(id);
+                    deleteCarro(id);
                 });
             });
+            console.log(data);
         });
 }
-loadContacts();
-function loadContact(){
+loadCarros();
+function loadCarro(){
     let id = document.querySelector('#input_get_id');
     let tBody = document.querySelector('.table__tbody');
     tBody.innerHTML = "";
-    fetch(`http://127.0.0.1:5000/contacts/${id.value}`, {
+    fetch(`http://127.0.0.1:5000/carros/${id.value}`, {
         method: "GET"
     })
         .then((response) => response.json())
         .then((data) => {
             let item = document.createElement('tr');
             item.innerHTML = 
-                `<th>${data.contact.id}</th>
-                <td>${data.contact.name}</td>
-                <td>${data.contact.phone}</td>`;
+                `<th>${data.carro.id}</th>
+                <td><i class="fa-solid fa-pen-to-square btn_upload" id="upcarro${data.carro.id}"></i> ${data.carro.modelo}</td>
+                <td>${data.carro.marca}</td>
+                <td>${data.carro.ano}</td>
+                <td>${data.carro.observacoes}</td>
+                <td>${data.carro.vDiaria}</td>
+                <td>${data.carro.status}<i class="fa-solid fa-trash btn_delete" id="updelete${data.carro.id}"></i></td>`;
             tBody.appendChild(item);
         });
 }
-function deleteContact(id = 0){
+function deleteCarro(id = 0){
     if (id == 0){
         id = document.querySelector('#input_delete_id').value;
     }
     let tBody = document.querySelector('.table__tbody');
     tBody.innerHTML = "";
-    fetch(`http://127.0.0.1:5000/contacts/${id}`, {
+    fetch(`http://127.0.0.1:5000/carros/${id}`, {
         method: "DELETE"
     })
         .then((response) => response.json())
         .then((data) => {
             console.log(data.message);
-            loadContacts();
+            loadCarros();
         });
 }
-function postContact(){
-    let inputName = document.getElementById('input_post_name');
-    let inputPhone = document.getElementById('input_post_phone');
+function postCarro(){
+    let inputModelo = document.getElementById('input_post_modelo');
+    let inputMarca = document.getElementById('input_post_marca');
+    let inputAno = document.getElementById('input_post_ano');
+    let inputObservacoes = document.getElementById('input_post_observacoes');
+    let inputVDiaria = document.getElementById('input_post_vDiaria');
     let inputData = {
-        "name": inputName.value,
-        "phone": inputPhone.value
+        "modelo": inputModelo.value,
+        "marca": inputMarca.value,
+        "ano": inputAno.value,
+        "observacoes": inputObservacoes.value,
+        "vDiaria": inputVDiaria.value,
     };
-    fetch(`http://127.0.0.1:5000/contacts`, {
+    fetch(`http://127.0.0.1:5000/carros`, {
         method: "POST",
         headers: {
             "Content-Type": 'application/json'
@@ -72,18 +87,25 @@ function postContact(){
     })
         .then((response) => response.json())
         .then((data) => {
-            loadContacts();
+            loadCarros();
     });
 }
-function updateContact(){
+function updateCarro(){
     let inputId = document.getElementById('input_put_id');
-    let inputName = document.getElementById('input_put_name');
-    let inputPhone = document.getElementById('input_put_phone');
+    let inputModelo = document.getElementById('input_put_modelo');
+    let inputMarca = document.getElementById('input_put_marca');
+    let inputAno = document.getElementById('input_put_ano');
+    let inputObservacoes = document.getElementById('input_put_observacoes');
+    let inputVDiaria = document.getElementById('input_put_vDiaria');
     let inputData = {
-        "name": inputName.value,
-        "phone": inputPhone.value
+        "modelo": inputModelo.value,
+        "marca": inputMarca.value,
+        "ano": inputAno.value,
+        "observacoes": inputObservacoes.value,
+        "vDiaria": inputVDiaria.value,
+        "status": 'alugado'
     };
-    fetch(`http://127.0.0.1:5000/contacts/${inputId.value}`, {
+    fetch(`http://127.0.0.1:5000/carros/${inputId.value}`, {
         method: "PUT",
         headers: {
             "Content-Type": 'application/json'
@@ -92,12 +114,15 @@ function updateContact(){
     })
         .then((response) => response.json())
         .then((data) => {
-            loadContacts();
+            loadCarros();
     });
 }
-function atalhoUptateContact(data){
-    console.log("Atualizar contato id: " + data.id);
+function atalhoUpdateCarro(data){
+    console.log("Atualizar carro id: " + data.id);
     document.getElementById('input_put_id').value = data.id;
-    document.getElementById('input_put_name').value = data.name;
-    document.getElementById('input_put_phone').value = data.phone;
+    document.getElementById('input_put_modelo').value = data.modelo;
+    document.getElementById('input_put_marca').value = data.marca;
+    document.getElementById('input_put_ano').value = data.ano;
+    document.getElementById('input_put_observacoes').value = data.observacoes;
+    document.getElementById('input_put_vDiaria').value = data.vDiaria;
 }
