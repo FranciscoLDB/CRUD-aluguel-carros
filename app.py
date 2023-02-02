@@ -14,12 +14,8 @@ class Carro(db.Model):
     observacoes = db.Column(db.String(100), nullable=True)
     vDiaria = db.Column(db.String(20), nullable=False)
     status = db.Column(db.String(20), nullable=False)
-
     def as_dict(self):
        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
-
-    def dict(self):
-       return {"id":self.id, "name":self.name, "phone":self.phone}
 
 with app.app_context():
     db.create_all()
@@ -55,10 +51,8 @@ def get_carros():
 # GET request to retrieve one carros
 @app.route('/carros/<int:id>', methods=['get'])
 def get_carro(id):
-    for carro in carros:
-        if id == carro['id']:
-            return jsonify({'carro': carro}),200
-    return jsonify({'message':'carro not found'}), 404
+    carro = Carro.query.get_or_404(id)
+    return jsonify({'carro': carro.as_dict()}),200
 
 # POST request to add a new carro with data of the new carro on a json file
 @app.route('/carros', methods=['POST'])

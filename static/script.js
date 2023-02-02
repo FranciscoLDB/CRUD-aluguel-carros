@@ -41,17 +41,18 @@ function loadCarros(){
 }
 loadCarros();
 function loadCarro(){
-    let id = document.querySelector('#input_get_id');
-    let tBody = document.querySelector('.table__tbody');
-    tBody.innerHTML = "";
+    let id = document.querySelector('#input_get_id');    
     fetch(`http://127.0.0.1:5000/carros/${id.value}`, {
         method: "GET"
     })
         .then((response) => response.json())
         .then((data) => {
+            tBody.innerHTML = "";
             addCarroTable(data.carro);
             initPopOvers();
-        });
+        }).catch((error) => {
+            window.alert("ID não localizado!");
+        })
 }
 function deleteCarro(id = 0){
     if (id == 0){
