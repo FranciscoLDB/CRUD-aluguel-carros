@@ -1,3 +1,10 @@
+function initPopOvers(){
+    let popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+    let popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+      return new bootstrap.Popover(popoverTriggerEl)
+    })
+}
+
 function loadCarros(){
     let tBody = document.querySelector('.table__tbody');
     tBody.innerHTML = "";
@@ -10,12 +17,10 @@ function loadCarros(){
                 let item = document.createElement('tr');
                 let id = carro.id;
                 item.innerHTML = 
-                    `<th>${id}</th>
-                    <td><i class="fa-solid fa-pen-to-square btn_upload" id="upcarro${id}"></i> ${carro.modelo}</td>
-                    <td>${carro.marca}</td>
-                    <td>${carro.ano}</td>
-                    <td>${carro.observacoes}</td>
-                    <td>${carro.vDiaria}</td>
+                    `<th>${id} <i class="fa-solid fa-pen-to-square btn_upload" id="upcarro${id}"></i></th>
+                    <td>${carro.modelo} / ${carro.marca} / ${carro.ano} 
+                    <a tabindex="0" class="btn" role="button" data-bs-toggle="popover" data-bs-trigger="focus" title="Observações" data-bs-content="${carro.observacoes}"><i class="fa-solid fa-circle-info"></i></a></td>
+                    <td>R$${carro.vDiaria}</td>
                     <td>${carro.status}<i class="fa-solid fa-trash btn_delete" id="updelete${id}"></i></td>`;
                 tBody.appendChild(item);
                 let btnUpdate = document.getElementById(`upcarro${id}`);
@@ -24,6 +29,7 @@ function loadCarros(){
                 btnDelete.addEventListener('click', () => {
                     deleteCarro(id);
                 });
+                initPopOvers();
             });
             console.log(data);
         });
@@ -40,14 +46,12 @@ function loadCarro(){
         .then((data) => {
             let item = document.createElement('tr');
             item.innerHTML = 
-                `<th>${data.carro.id}</th>
-                <td><i class="fa-solid fa-pen-to-square btn_upload" id="upcarro${data.carro.id}"></i> ${data.carro.modelo}</td>
-                <td>${data.carro.marca}</td>
-                <td>${data.carro.ano}</td>
-                <td>${data.carro.observacoes}</td>
-                <td>${data.carro.vDiaria}</td>
+                `<th>${data.carro.id} <i class="fa-solid fa-pen-to-square btn_upload" id="upcarro${data.carro.id}"></i></th>
+                <td>${data.carro.modelo} / ${data.carro.marca} / ${data.carro.ano} <a tabindex="0" class="btn" role="button" data-bs-toggle="popover" data-bs-trigger="focus" title="Observações" data-bs-content="${carro.observacoes}"><i class="fa-solid fa-circle-info"></i></a></td>
+                <td>R$${data.carro.vDiaria}</td>
                 <td>${data.carro.status}<i class="fa-solid fa-trash btn_delete" id="updelete${data.carro.id}"></i></td>`;
             tBody.appendChild(item);
+            initPopOvers();
         });
 }
 function deleteCarro(id = 0){
@@ -78,6 +82,11 @@ function postCarro(){
         "observacoes": inputObservacoes.value,
         "vDiaria": inputVDiaria.value,
     };
+    inputModelo.value = "";
+    inputMarca.value = "";
+    inputAno.value = "";
+    inputObservacoes.value = "";
+    inputVDiaria.value = "";
     fetch(`http://127.0.0.1:5000/carros`, {
         method: "POST",
         headers: {
