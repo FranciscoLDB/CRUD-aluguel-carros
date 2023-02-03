@@ -1,3 +1,15 @@
+const loader = document.getElementById('loader');
+function displayLoader(){
+    loader.classList.add("display");
+    setTimeout(() => {
+        loader.classList.remove("display");
+    }, 2900);
+}
+
+function hideLoader(){
+    loader.classList.remove("display");
+}
+
 function initPopOvers(){
     let popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
     let popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
@@ -27,6 +39,7 @@ function addCarroTable(carro){
 let tBody = document.querySelector('.table__tbody');
 function loadCarros(){
     tBody.innerHTML = "";
+    displayLoader();
     fetch('http://127.0.0.1:5000/carros', {
         method: "GET"
     })
@@ -36,12 +49,13 @@ function loadCarros(){
                 addCarroTable(carro);
             });
             initPopOvers();
+            hideLoader();
             console.log(data);
         });
 }
-loadCarros();
 function loadCarro(){
-    let id = document.querySelector('#input_get_id');    
+    let id = document.querySelector('#input_get_id');
+    displayLoader();
     fetch(`http://127.0.0.1:5000/carros/${id.value}`, {
         method: "GET"
     })
@@ -49,6 +63,7 @@ function loadCarro(){
         .then((data) => {
             tBody.innerHTML = "";
             addCarroTable(data.carro);
+            hideLoader();
             initPopOvers();
         }).catch((error) => {
             window.alert("ID não localizado!");
@@ -132,3 +147,5 @@ function atalhoUpdateCarro(data){
     document.getElementById('input_put_vDiaria').value = data.vDiaria;
     document.getElementById('input_put_status').value = data.status;
 }
+
+loadCarros();
