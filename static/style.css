@@ -4,7 +4,7 @@ body{
     background-blend-mode:soft-light;
 }
 
-.btn_upload:hover, .btn_delete:hover{
+.btn_upload:hover, .btn_delete:hover, .dropdown-item:hover{
     cursor: pointer;
 }
 

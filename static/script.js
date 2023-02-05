@@ -5,11 +5,9 @@ function displayLoader(){
         loader.classList.remove("display");
     }, 2900);
 }
-
 function hideLoader(){
     loader.classList.remove("display");
 }
-
 function initPopOvers(){
     let popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
     let popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
@@ -19,13 +17,15 @@ function initPopOvers(){
 
 function addCarroTable(carro){
     let item = document.createElement('tr');
-    let id = carro.id;              
+    let id = carro.id;
+    item.classList.add(`tr${id}`);
+    item.classList.add(`tbody_tr`);
     item.innerHTML = 
         `<th>${id} <i class="fa-solid fa-pen-to-square btn_upload" id="upcarro${id}" data-bs-toggle="modal" data-bs-target="#attModal"></i></th>
         <td>${carro.modelo} / ${carro.marca} / ${carro.ano} 
         <a tabindex="0" class="btn" role="button" data-bs-toggle="popover" data-bs-trigger="focus" title="Observações" data-bs-content="${carro.observacoes}"><i class="fa-solid fa-circle-info"></i></a></td>
         <td>R$${carro.vDiaria}</td>
-        <td>${carro.status}<i class="fa-solid fa-trash btn_delete" id="updelete${id}"></i></td>`;
+        <td class="td${id}">${carro.status}<i class="fa-solid fa-trash btn_delete" id="updelete${id}"></i></td>`;
     tBody.appendChild(item);
     
     let btnUpdate = document.getElementById(`upcarro${id}`);
@@ -37,10 +37,10 @@ function addCarroTable(carro){
 }
 
 let tBody = document.querySelector('.table__tbody');
-function loadCarros(){
+function loadCarros(filtro=''){
     tBody.innerHTML = "";
     displayLoader();
-    fetch('http://127.0.0.1:5000/carros', {
+    fetch('http://127.0.0.1:5000/carros' + filtro, {
         method: "GET"
     })
         .then((response) => response.json())
@@ -149,3 +149,9 @@ function atalhoUpdateCarro(data){
 }
 
 loadCarros();
+
+document.getElementById('btn_crescente').addEventListener('click', () => loadCarros('/filtro?ordem=1'));
+document.getElementById('btn_decrescente').addEventListener('click', () => loadCarros('/filtro?ordem=2'));
+document.getElementById('btn_livre').addEventListener('click', () => loadCarros('/filtro?status=livre'));
+document.getElementById('btn_alugado').addEventListener('click', () => loadCarros('/filtro?status=alugado'));
+document.getElementById('btn_manutencao').addEventListener('click', () => loadCarros('/filtro?status=manutencao'));
