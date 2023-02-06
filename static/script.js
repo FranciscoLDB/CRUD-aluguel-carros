@@ -66,6 +66,7 @@ function loadCarro(){
             hideLoader();
             initPopOvers();
         }).catch((error) => {
+            console.log("erro loadCarro: " + error);
             window.alert("ID não localizado!");
         })
 }
@@ -111,6 +112,7 @@ function postCarro(){
     })
         .then((response) => response.json())
         .then((data) => {
+            console.log(data);
             loadCarros();
     });
 }
