@@ -26,13 +26,11 @@ with app.app_context():
 def index():
     return render_template('index.html')
 
-# GET request to retrieve all carros
 @app.route('/carros', methods=['GET'])
 def get_carros(): 
     carros = Carro.query.all()
     return jsonify({'carros':[carro.as_dict() for carro in carros]}), 200
 
-# GET request to retrieve one carros
 @app.route('/carros/<int:id>', methods=['get'])
 def get_carro(id):
     carro = Carro.query.get_or_404(id)
@@ -54,7 +52,6 @@ def get_carro_status():
 
     return jsonify({'carros': [carro.as_dict() for carro in carros]}),200
 
-# POST request to add a new carro with data of the new carro on a json file
 @app.route('/carros', methods=['POST'])
 def add_carro():
     if not request.is_json:
@@ -67,7 +64,6 @@ def add_carro():
     db.session.commit()
     return jsonify({'carro': carro.as_dict()}), 201
 
-# PUT request to update a carro
 @app.route('/carros/<int:id>', methods=['PUT'])
 def update_carro(id):
     if not request.is_json:
@@ -85,7 +81,6 @@ def update_carro(id):
     db.session.commit()
     return jsonify({'carro': carro.as_dict()}), 200
 
-# DELETE request to delete a carro
 @app.route('/carros/<int:id>', methods=['DELETE'])
 def delete_carro(id):
     try:
